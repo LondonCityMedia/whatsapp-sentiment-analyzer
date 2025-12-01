@@ -51,8 +51,9 @@ const FileUpload = ({ onAnalysisComplete }) => {
         formData.append('file', file);
 
         try {
-            // Assuming backend is running on localhost:8000
-            const response = await axios.post('http://localhost:8000/analyze', formData, {
+            // Use environment variable for API URL, fallback to localhost for development
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+            const response = await axios.post(`${apiUrl}/analyze`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
