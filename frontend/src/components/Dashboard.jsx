@@ -1,14 +1,42 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    AreaChart, Area
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    ResponsiveContainer,
+    AreaChart,
+    Area,
+    Cell,
 } from 'recharts';
 import { MessageSquare, Users, Smile, Link as LinkIcon, Clock, Calendar } from 'lucide-react';
 import ReactWordcloud from 'react-wordcloud';
 
-// High Contrast Colors
-const COLORS = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080', '#00FFFF', '#FF00FF', '#A52A2A'];
+// Helper to resolve favicons, with special handling for TikTok
+const getFaviconUrl = (domain) => {
+    const d = (domain || '').toLowerCase();
+    if (d.endsWith('tiktok.com') || d.includes('tiktok')) {
+        // Use TikTok's official favicon so subdomains like vk.tiktok.com work
+        return 'https://www.tiktok.com/favicon.ico';
+    }
+    return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+};
+
+// High Contrast Colors (from CSS variables in colors.css)
+const COLORS = [
+    'var(--chart-user-1)',
+    'var(--chart-user-2)',
+    'var(--chart-user-3)',
+    'var(--chart-user-4)',
+    'var(--chart-user-5)',
+    'var(--chart-user-6)',
+    'var(--chart-user-7)',
+    'var(--chart-user-8)',
+];
 
 const StatCard = ({ title, value, icon: Icon, delay }) => (
     <motion.div
@@ -76,7 +104,23 @@ const Dashboard = ({ data }) => {
                                 <XAxis type="number" />
                                 <YAxis dataKey="author" type="category" width={100} />
                                 <Tooltip cursor={{ fill: 'transparent' }} />
-                                <Bar dataKey="avg_message_length" fill="#34B7F1" radius={[0, 4, 4, 0]} barSize={20} />
+                                <Bar
+                                    dataKey="avg_message_length"
+                                    radius={[0, 4, 4, 0]}
+                                    barSize={20}
+                                >
+                                    {sentiment_by_person.map((entry) => (
+                                        <Cell
+                                            key={entry.author}
+                                            fill={
+                                                COLORS[
+                                                    participants.indexOf(entry.author) %
+                                                    COLORS.length
+                                                ]
+                                            }
+                                        />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -97,7 +141,23 @@ const Dashboard = ({ data }) => {
                                 <XAxis type="number" />
                                 <YAxis dataKey="author" type="category" width={100} />
                                 <Tooltip cursor={{ fill: 'transparent' }} formatter={(value) => `${value.toFixed(1)} min`} />
-                                <Bar dataKey="avg_response_time_minutes" fill="#8884d8" radius={[0, 4, 4, 0]} barSize={20} />
+                                <Bar
+                                    dataKey="avg_response_time_minutes"
+                                    radius={[0, 4, 4, 0]}
+                                    barSize={20}
+                                >
+                                    {sentiment_by_person.map((entry) => (
+                                        <Cell
+                                            key={entry.author}
+                                            fill={
+                                                COLORS[
+                                                    participants.indexOf(entry.author) %
+                                                    COLORS.length
+                                                ]
+                                            }
+                                        />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -137,6 +197,45 @@ const Dashboard = ({ data }) => {
                 </div>
             </motion.div>
 
+            {/* Row 2.5: Conversation Initiation */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.75 }}
+                className="glass-panel p-6"
+            >
+                <h3 className="text-lg font-semibold mb-6 text-gray-800">Conversation Initiation</h3>
+                <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data.conversation_initiation} layout="vertical" margin={{ left: 40 }}>
+                            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                            <XAxis type="number" />
+                            <YAxis dataKey="author" type="category" width={100} />
+                            <Tooltip cursor={{ fill: 'transparent' }} />
+                            <Legend />
+                            <Bar
+                                dataKey="conversations_started"
+                                name="Conversations Started"
+                                radius={[0, 4, 4, 0]}
+                                barSize={20}
+                            >
+                                {data.conversation_initiation.map((entry) => (
+                                    <Cell
+                                        key={entry.author}
+                                        fill={
+                                            COLORS[
+                                                participants.indexOf(entry.author) %
+                                                COLORS.length
+                                            ]
+                                        }
+                                    />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </motion.div>
+
             {/* Row 3: Message Length & User Emojis */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Sentiment Distribution (Swapped) */}
@@ -155,9 +254,25 @@ const Dashboard = ({ data }) => {
                                 <YAxis dataKey="author" type="category" width={100} />
                                 <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                                 <Legend />
-                                <Bar dataKey="positive_pct" name="Positive" stackId="a" fill="#25D366" />
-                                <Bar dataKey="neutral_pct" name="Neutral" stackId="a" fill="#ECE5DD" />
-                                <Bar dataKey="negative_pct" name="Negative" stackId="a" fill="#EF4444" radius={[0, 4, 4, 0]} />
+                                <Bar
+                                    dataKey="positive_pct"
+                                    name="Positive"
+                                    stackId="a"
+                                    fill="var(--chart-sentiment-positive)"
+                                />
+                                <Bar
+                                    dataKey="neutral_pct"
+                                    name="Neutral"
+                                    stackId="a"
+                                    fill="var(--chart-sentiment-neutral)"
+                                />
+                                <Bar
+                                    dataKey="negative_pct"
+                                    name="Negative"
+                                    stackId="a"
+                                    fill="var(--chart-sentiment-negative)"
+                                    radius={[0, 4, 4, 0]}
+                                />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -248,10 +363,21 @@ const Dashboard = ({ data }) => {
                             </div>
                             <div className="space-y-2">
                                 {person.domains.map((item, i) => (
-                                    <div key={i} className="flex items-center justify-between p-2 bg-white rounded border border-gray-100 hover:border-gray-300 transition-colors">
-                                        <span className="text-xs text-gray-600 truncate max-w-[150px]" title={item.domain}>
-                                            {item.domain}
-                                        </span>
+                                    <div
+                                        key={i}
+                                        className="flex items-center justify-between p-2 bg-white rounded border border-gray-100 hover:border-gray-300 transition-colors"
+                                        title={item.domain}
+                                    >
+                                        <div className="flex items-center gap-2 max-w-[180px]">
+                                            <img
+                                                src={getFaviconUrl(item.domain)}
+                                                alt={item.domain}
+                                                className="w-5 h-5 rounded flex-shrink-0"
+                                            />
+                                            <span className="text-xs text-gray-600 truncate" title={item.domain}>
+                                                {item.domain}
+                                            </span>
+                                        </div>
                                         <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded-full text-gray-700">
                                             {item.count}
                                         </span>

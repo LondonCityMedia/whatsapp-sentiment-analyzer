@@ -3,6 +3,8 @@ import FileUpload from './components/FileUpload';
 import Dashboard from './components/Dashboard';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { Github } from 'lucide-react';
+
 function App() {
     const [analysisResults, setAnalysisResults] = useState(null);
 
@@ -20,14 +22,25 @@ function App() {
                                 WhatsApp Sentiment Analyzer
                             </h1>
                         </div>
-                        {analysisResults && (
-                            <button
-                                onClick={() => setAnalysisResults(null)}
-                                className="text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+                        <div className="flex items-center gap-4">
+                            {analysisResults && (
+                                <button
+                                    onClick={() => setAnalysisResults(null)}
+                                    className="text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+                                >
+                                    Analyze Another Chat
+                                </button>
+                            )}
+                            <a
+                                href="https://github.com/LondonCityMedia/whatsapp-sentiment-analyzer"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-gray-400 hover:text-gray-900 transition-colors"
+                                title="View on GitHub"
                             >
-                                Analyze Another Chat
-                            </button>
-                        )}
+                                <Github className="w-6 h-6" />
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -52,6 +65,85 @@ function App() {
                                 </p>
                             </div>
                             <FileUpload onAnalysisComplete={setAnalysisResults} />
+
+                            {/* SEO Content Section */}
+                            <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl w-full text-left">
+                                <div className="space-y-6">
+                                    <h3 className="text-2xl font-bold text-gray-900">How It Works</h3>
+                                    <div className="space-y-4">
+                                        <div className="flex gap-4">
+                                            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold shrink-0">1</div>
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900">Sentiment Analysis</h4>
+                                                <p className="text-gray-600 text-sm leading-relaxed">
+                                                    Advanced NLP algorithms analyze the emotional tone of every message, categorizing them into positive, neutral, or negative sentiments to reveal the underlying mood of your conversations.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center text-green-600 font-bold shrink-0">2</div>
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900">Activity Tracking</h4>
+                                                <p className="text-gray-600 text-sm leading-relaxed">
+                                                    Visualize chat patterns with hourly activity heatmaps and response time analysis. Understand when your group is most active and who responds the fastest.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 font-bold shrink-0">3</div>
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900">Participant Insights</h4>
+                                                <p className="text-gray-600 text-sm leading-relaxed">
+                                                    Deep dive into individual behaviors with word clouds, emoji usage statistics, and conversation initiation metrics to see who drives the discussion.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <h3 className="text-2xl font-bold text-gray-900">Technology Stack</h3>
+                                    <p className="text-gray-600">
+                                        Built with modern web technologies for performance and privacy. Your data is processed locally and securely.
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                                            <h4 className="font-semibold text-gray-900 mb-2">Frontend</h4>
+                                            <ul className="space-y-2 text-sm text-gray-600">
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> React & Vite
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Tailwind CSS
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Recharts
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span> Framer Motion
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div className="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                                            <h4 className="font-semibold text-gray-900 mb-2">Backend</h4>
+                                            <ul className="space-y-2 text-sm text-gray-600">
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> FastAPI (Python)
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> NLTK
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> VaderSentiment
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Pandas
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
                     ) : (
                         <motion.div

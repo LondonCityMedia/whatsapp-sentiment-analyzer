@@ -1,0 +1,17 @@
+:root {
+  /* per-user colors - slightly darker pastel blue/green spectrum */
+  --chart-user-1: #7fc8ff; /* sky blue */
+  --chart-user-2: #6fd9ff; /* aqua blue */
+  --chart-user-3: #6fdcc4; /* mint teal */
+  --chart-user-4: #7bd9a4; /* soft seafoam */
+  --chart-user-5: #84df8d; /* pastel green */
+  --chart-user-6: #8fd4c0; /* pale teal */
+  --chart-user-7: #8fc7ff; /* icy blue */
+  --chart-user-8: #7ec9b0; /* muted aqua green */
+
+  /* Sentiment distribution (stacked bars) */
+  --chart-sentiment-positive: #AAEEAA;
+  --chart-sentiment-neutral: #EEEEEE;
+  --chart-sentiment-negative: #EEAAAA;
+}
+

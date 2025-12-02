@@ -48,7 +48,7 @@ class WhatsAppAnalyzer:
         data = []
         lines = file_content.split('\n')
         
-        exclude_authors = {'you', 'gold traders', 'dwayne & sara'}
+        exclude_authors = {'you'}
         
         for line in lines:
             line = line.strip()
@@ -59,7 +59,7 @@ class WhatsAppAnalyzer:
             line_lower = line.lower()
             if ('image omitted' in line_lower 
             or 'gif omitted' in line_lower
-            or 'and calls are end-to-end encrypted' in line_lower
+            # or 'and calls are end-to-end encrypted' in line_lower # Handled dynamically below
             or '\u200E\u200E' in line_lower # strip the double unicode character 
             or 'you started a video call' in line_lower):
                 continue
@@ -69,6 +69,15 @@ class WhatsAppAnalyzer:
             
             if match1:
                 date, time, author, message = match1.groups()
+                
+                # Dynamic Exclusion: Check for encryption message
+                if 'messages and calls are end-to-end encrypted' in message.lower():
+                     # Strip invisible Unicode characters
+                    author_clean = ''.join(c for c in author if unicodedata.category(c)[0] != 'C').strip().lower()
+                    print(f"DEBUG: Found encryption message from '{author}'. Adding '{author_clean}' to exclude_authors.")
+                    exclude_authors.add(author_clean)
+                    continue
+
                 # Strip invisible Unicode characters (like zero-width spaces, LTR marks, etc.)
                 author_clean = ''.join(c for c in author if unicodedata.category(c)[0] != 'C').strip().lower()
                 if author_clean in exclude_authors:
@@ -77,6 +86,15 @@ class WhatsAppAnalyzer:
                 data.append({'date': date, 'time': time, 'author': author, 'message': message})
             elif match2:
                 date, time, author, message = match2.groups()
+
+                # Dynamic Exclusion: Check for encryption message
+                if 'messages and calls are end-to-end encrypted' in message.lower():
+                     # Strip invisible Unicode characters
+                    author_clean = ''.join(c for c in author if unicodedata.category(c)[0] != 'C').strip().lower()
+                    print(f"DEBUG: Found encryption message from '{author}'. Adding '{author_clean}' to exclude_authors.")
+                    exclude_authors.add(author_clean)
+                    continue
+
                 # Strip invisible Unicode characters
                 author_clean = ''.join(c for c in author if unicodedata.category(c)[0] != 'C').strip().lower()
                 if author_clean in exclude_authors:
@@ -193,6 +211,24 @@ class WhatsAppAnalyzer:
         # Merge response times into sentiment_by_person for easier frontend handling
         sentiment_by_person = pd.merge(sentiment_by_person, avg_response_times, on='author', how='left').fillna(0)
 
+        # --- 3.5 Conversation Initiation Analysis ---
+        # Define conversation start as first message after 3+ hours of silence
+        conversation_gap_hours = 3
+        df_sorted['is_conversation_start'] = df_sorted['time_diff'] > (conversation_gap_hours * 60)
+        
+        # Count conversation initiations per author
+        conversation_starts = df_sorted[df_sorted['is_conversation_start'] == True].groupby('author').size().reset_index(name='conversations_started')
+        
+        # Calculate total conversations
+        total_conversations = conversation_starts['conversations_started'].sum()
+        
+        # Calculate percentage for each author
+        if total_conversations > 0:
+            conversation_starts['initiation_percentage'] = (conversation_starts['conversations_started'] / total_conversations * 100).round(1)
+        else:
+            conversation_starts['initiation_percentage'] = 0
+        conversation_starts = conversation_starts.sort_values('conversations_started', ascending=False)
+
         # --- 4. Emoji Analysis ---
         def extract_emojis(text):
             return [c for c in text if c in emoji.EMOJI_DATA]
@@ -222,7 +258,7 @@ class WhatsAppAnalyzer:
         # --- 5. Word Cloud / Frequency ---
         def get_tokens(text):
             # Remove punctuation (including smart quotes) and convert to lower case
-            punctuation_map = str.maketrans('', '', string.punctuation + '’‘“”')
+            punctuation_map = str.maketrans('', '', string.punctuation + '“”')
             text = text.translate(punctuation_map).lower()
             tokens = text.split()
             filtered = [t for t in tokens if t not in self.stopwords and len(t) > 2]
@@ -247,6 +283,16 @@ class WhatsAppAnalyzer:
         # --- 6. Domain Extraction (Per User) ---
         url_pattern = r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+'
         
+        def normalize_domain(domain: str) -> str:
+            """
+            Normalizes domains so related hosts are grouped together.
+            Currently consolidates YouTube variants (youtube.com / youtu.be).
+            """
+            d = domain.lower()
+            if d in {"youtu.be", "youtube.com", "www.youtube.com"}:
+                return "youtube.com"
+            return d
+
         def extract_domain(text):
             urls = re.findall(url_pattern, text)
             domains = []
@@ -254,9 +300,12 @@ class WhatsAppAnalyzer:
                 try:
                     from urllib.parse import urlparse
                     domain = urlparse(url).netloc
+                    # Strip port if present and normalize www + case
+                    if ':' in domain:
+                        domain = domain.split(':', 1)[0]
                     if domain.startswith('www.'):
                         domain = domain[4:]
-                    domains.append(domain)
+                    domains.append(normalize_domain(domain))
                 except:
                     pass
             return domains
@@ -310,6 +359,7 @@ class WhatsAppAnalyzer:
         return {
             "sentiment_by_person": sentiment_by_person.to_dict(orient='records'),
             "hourly_activity": hourly_activity_data,
+            "conversation_initiation": conversation_starts.to_dict(orient='records'),
             "emoji_stats": {
                 "by_person": user_emoji_stats
             },
@@ -320,3 +370,4 @@ class WhatsAppAnalyzer:
             "total_duration": total_duration,
             "avg_messages_per_day": round(avg_messages_per_day, 1)
         }
+
