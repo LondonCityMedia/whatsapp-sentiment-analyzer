@@ -67,7 +67,9 @@ const Dashboard = ({ data }) => {
             emoji_stats = {},
             word_clouds = [],
             domain_stats = [],
-            total_duration = "N/A"
+            conversation_initiation = [],
+            total_duration = "N/A",
+            avg_messages_per_day = 0
         } = data;
 
         const overallSentiment = sentiment_by_person.length > 0 
@@ -87,7 +89,7 @@ const Dashboard = ({ data }) => {
                 <StatCard title="Total Messages" value={total_messages.toLocaleString()} icon={MessageSquare} delay={0.1} />
                 <StatCard title="Participants" value={participants.length} icon={Users} delay={0.2} />
                 <StatCard title="Time Period" value={total_duration} icon={Calendar} delay={0.3} />
-                <StatCard title="Avg Messages/Day" value={data.avg_messages_per_day} icon={MessageSquare} delay={0.4} />
+                <StatCard title="Avg Messages/Day" value={avg_messages_per_day} icon={MessageSquare} delay={0.4} />
             </div>
 
             {/* Row 1: Sentiment & Response Time */}
@@ -112,7 +114,7 @@ const Dashboard = ({ data }) => {
                                     radius={[0, 4, 4, 0]}
                                     barSize={20}
                                 >
-                                    {sentiment_by_person.map((entry) => (
+                                    {(sentiment_by_person || []).map((entry) => (
                                         <Cell
                                             key={entry.author}
                                             fill={
@@ -149,7 +151,7 @@ const Dashboard = ({ data }) => {
                                     radius={[0, 4, 4, 0]}
                                     barSize={20}
                                 >
-                                    {sentiment_by_person.map((entry) => (
+                                    {(sentiment_by_person || []).map((entry) => (
                                         <Cell
                                             key={entry.author}
                                             fill={
@@ -183,7 +185,7 @@ const Dashboard = ({ data }) => {
                             <YAxis />
                             <Tooltip labelFormatter={(h) => `${h}:00`} />
                             <Legend />
-                            {participants.map((person, index) => (
+                            {(participants || []).map((person, index) => (
                                 <Area
                                     key={person || `user-${index}`}
                                     type="monotone"
@@ -210,7 +212,7 @@ const Dashboard = ({ data }) => {
                 <h3 className="text-lg font-semibold mb-6 text-gray-800">Conversation Initiation</h3>
                 <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data.conversation_initiation} layout="vertical" margin={{ left: 40 }}>
+                        <BarChart data={conversation_initiation || []} layout="vertical" margin={{ left: 40 }}>
                             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                             <XAxis type="number" />
                             <YAxis dataKey="author" type="category" width={100} />
@@ -222,7 +224,7 @@ const Dashboard = ({ data }) => {
                                 radius={[0, 4, 4, 0]}
                                 barSize={20}
                             >
-                                {data.conversation_initiation.map((entry) => (
+                                {(conversation_initiation || []).map((entry) => (
                                     <Cell
                                         key={entry.author}
                                         fill={
@@ -294,7 +296,7 @@ const Dashboard = ({ data }) => {
                             <div key={idx}>
                                 <h4 className="text-sm font-medium text-gray-500 mb-2">{person.author}</h4>
                                 <div className="flex gap-4">
-                                    {person.top_emojis.map((e, i) => (
+                                    {(person.top_emojis || []).map((e, i) => (
                                         <div key={i} className="flex flex-col items-center bg-gray-50 p-2 rounded min-w-[60px]">
                                             <span className="text-2xl mb-1">{e.emoji}</span>
                                             <span className="text-xs font-bold text-gray-600">{e.count}</span>
