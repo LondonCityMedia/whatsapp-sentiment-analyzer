@@ -31,15 +31,6 @@ function App() {
                                     Analyze Another Chat
                                 </button>
                             )}
-                            <a
-                                href="https://github.com/LondonCityMedia/whatsapp-sentiment-analyzer"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-gray-400 hover:text-gray-900 transition-colors"
-                                title="View on GitHub"
-                            >
-                                <Github className="w-6 h-6" />
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -143,6 +134,24 @@ function App() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div className="text-center space-y-4 max-w-2xl">
+                                <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
+                                    The Code
+                                </h2>
+                                <p className="text-lg text-gray-600">
+                                    The code for this application is available on GitHub&nbsp;
+                                    <a
+                                        href="https://github.com/LondonCityMedia/whatsapp-sentiment-analyzer"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-gray-400 hover:text-gray-900 transition-colors"
+                                        title="View on GitHub"
+                                    >
+                                        here
+                                    </a>
+                                    .
+                                </p>
                             </div>
                         </motion.div>
                     ) : (

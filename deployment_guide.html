@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WhatsApp Sentiment Analyzer – Deployment Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f9fafb;
+      color: #111827;
+    }
+    h1, h2, h3 {
+      color: #111827;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+    h2 {
+      font-size: 1.4rem;
+      margin-top: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 0.25rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 1.25rem;
+    }
+    p {
+      line-height: 1.6;
+      margin: 0.4rem 0;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f3f4f6;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.25rem;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #0b1020;
+      color: #e5e7eb;
+      padding: 0.85rem 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0.75rem 0 1rem;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+    ul, ol {
+      margin: 0.4rem 0 0.9rem 1.25rem;
+    }
+    li {
+      margin: 0.25rem 0;
+    }
+    .pill {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #e5f3ff;
+      color: #075985;
+      margin-left: 0.35rem;
+    }
+    .section {
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      background: #ffffff;
+      border-radius: 0.75rem;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5e7eb;
+    }
+    .hint {
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+    .tagline {
+      font-size: 0.95rem;
+      color: #4b5563;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="section">
+    <h1>Deployment Guide – WhatsApp Sentiment Analyzer</h1>
+    <p class="tagline">
+      This page explains how to push code changes to the live site:
+      <code>https://www.analyser.chat</code> (frontend, Vercel) and
+      <code>https://api.analyser.chat</code> (backend, Lightsail).
+    </p>
+
+    <h2>1. Frontend Deployment (Vercel) <span class="pill">React / Vite</span></h2>
+
+    <p><strong>What’s already set up</strong></p>
+    <ul>
+      <li>GitHub repo connected to Vercel.</li>
+      <li><code>vercel.json</code> configured for the <code>frontend/</code> app.</li>
+      <li><code>VITE_API_URL</code> in Vercel set to <code>https://api.analyser.chat</code>.</li>
+    </ul>
+
+    <h3>Every time you change the frontend</h3>
+    <ol>
+      <li>
+        <strong>Edit code locally</strong><br />
+        Work inside the <code>frontend/</code> folder (e.g. <code>src/components/*</code>, <code>src/App.jsx</code>).
+      </li>
+      <li>
+        <strong>Commit and push with GitHub Desktop</strong>
+        <ol>
+          <li>Open <strong>GitHub Desktop</strong>.</li>
+          <li>Confirm the repository is <code>whatsapp-sentiment-analyzer</code>.</li>
+          <li>Review files in the <strong>Changes</strong> tab.</li>
+          <li>Enter a commit message, e.g. <code>Update chart colors</code>.</li>
+          <li>Click <strong>Commit to main</strong>.</li>
+          <li>Click <strong>Push origin</strong>.</li>
+        </ol>
+      </li>
+      <li>
+        <strong>Wait for Vercel to deploy</strong>
+        <ol>
+          <li>Go to Vercel &rarr; your project for <code>analyser.chat</code>.</li>
+          <li>Open the <strong>Deployments</strong> tab and wait until the latest deployment is <strong>Ready</strong>.</li>
+        </ol>
+      </li>
+      <li>
+        <strong>Smoke test the live site</strong>
+        <ol>
+          <li>Visit <code>https://www.analyser.chat</code>.</li>
+          <li>Confirm the landing page loads without console errors.</li>
+          <li>Upload a small WhatsApp <code>.txt</code> file and verify the dashboard renders correctly.</li>
+        </ol>
+      </li>
+    </ol>
+
+    <p class="hint">
+      For frontend-only changes, you do <em>not</em> need to log into Lightsail or restart the backend.
+    </p>
+
+    <h2>2. Backend Deployment (Lightsail) <span class="pill">FastAPI</span></h2>
+
+    <p><strong>What’s already set up</strong></p>
+    <ul>
+      <li>Lightsail instance running Ubuntu.</li>
+      <li>Backend code in <code>~/whatsapp-sentiment-analyzer/backend</code>.</li>
+      <li>Virtualenv at <code>~/whatsapp-sentiment-analyzer/backend/venv</code>.</li>
+      <li>nginx proxy at <code>https://api.analyser.chat</code> forwarding to <code>localhost:8000</code>.</li>
+    </ul>
+
+    <h3>Every time you change the backend</h3>
+
+    <h3>Step 1 – Commit and push from your Mac</h3>
+    <ol>
+      <li>Edit Python files in <code>backend/</code> (<code>main.py</code>, <code>analyzer.py</code>, etc.).</li>
+      <li>Open <strong>GitHub Desktop</strong>.</li>
+      <li>Review backend files in the <strong>Changes</strong> tab.</li>
+      <li>Use a clear commit message, e.g. <code>Improve large file handling</code>.</li>
+      <li>Click <strong>Commit to main</strong> and then <strong>Push origin</strong>.</li>
+    </ol>
+
+    <h3>Step 2 – Pull and restart on Lightsail</h3>
+    <ol>
+      <li>
+        <strong>SSH into Lightsail</strong><br />
+        (From your Lightsail console or your own terminal, however you normally connect.)
+      </li>
+      <li>
+        <strong>Update the code and dependencies</strong>
+        <pre><code>cd ~/whatsapp-sentiment-analyzer
+git pull origin main
+
+cd backend
+source venv/bin/activate
+pip install -r requirements.txt</code></pre>
+      </li>
+      <li>
+        <strong>Restart the backend process</strong><br />
+        Stop any existing <code>uvicorn</code> and start a fresh one in the background:
+        <pre><code>pkill -f "uvicorn main:app" || true
+
+cd ~/whatsapp-sentiment-analyzer/backend
+source venv/bin/activate
+nohup python -m uvicorn main:app --host 0.0.0.0 --port 8000 \
+  &gt; /tmp/backend.log 2&gt;&amp;1 &amp;</code></pre>
+      </li>
+      <li>
+        <strong>Quick health check (on the server)</strong>
+        <pre><code>curl http://localhost:8000</code></pre>
+        Expected response:
+        <pre><code>{"message":"WhatsApp Sentiment Analyzer API is running"}</code></pre>
+      </li>
+      <li>
+        <strong>External API check (from your Mac)</strong>
+        <pre><code>curl https://api.analyser.chat</code></pre>
+        Expected: same JSON health message as above.
+      </li>
+    </ol>
+
+    <h3>Step 3 – Full end-to-end test</h3>
+    <ol>
+      <li>Open <code>https://www.analyser.chat</code> in your browser.</li>
+      <li>Upload a small WhatsApp <code>.txt</code> export; verify charts and stats load.</li>
+      <li>(Optional) Upload a larger file to confirm upload limits and timeouts behave correctly.</li>
+    </ol>
+
+    <h2>3. Quick Reference</h2>
+
+    <h3>Frontend only</h3>
+    <ol>
+      <li>Edit <code>frontend/</code> files.</li>
+      <li>Commit &amp; push with GitHub Desktop.</li>
+      <li>Wait for Vercel deployment to be <strong>Ready</strong>.</li>
+      <li>Test <code>https://www.analyser.chat</code>.</li>
+    </ol>
+
+    <h3>Backend only</h3>
+    <ol>
+      <li>Edit <code>backend/</code> files.</li>
+      <li>Commit &amp; push with GitHub Desktop.</li>
+      <li>SSH to Lightsail and run:
+        <pre><code>cd ~/whatsapp-sentiment-analyzer
+git pull origin main
+cd backend
+source venv/bin/activate
+pip install -r requirements.txt
+pkill -f "uvicorn main:app" || true
+nohup python -m uvicorn main:app --host 0.0.0.0 --port 8000 \
+  &gt; /tmp/backend.log 2&gt;&amp;1 &amp;</code></pre>
+      </li>
+      <li>Test <code>https://api.analyser.chat</code> and then <code>https://www.analyser.chat</code>.</li>
+    </ol>
+
+    <p class="hint">
+      If something breaks, check <code>/tmp/backend.log</code> on Lightsail and the browser console on the frontend.
+    </p>
+  </main>
+</body>
+</html>
+
+
